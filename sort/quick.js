@@ -1,8 +1,7 @@
 // 快速排序算法
-// 过程:
-//      1.递归，把数组最后拆分成[4], [3], [2], [1]
-//      2.在合并过程中不停对比，保证它的有序状态[3, 4], [1, 2]
-//      3.这样最终数组合并完之后也是有序的[1, 2, 3, 4]
+// 原理:
+//      1.取一个中间值，把小于它的值放在左边数组，大于它的放在右边数组，通过数组的concat方法把三者合并起来
+//      2.对1过程递归调用
 //      leetcode 140ms 50.6MB
 
 function quickSort(arr) {
@@ -11,7 +10,7 @@ function quickSort(arr) {
   }
   let middle = arr[0],
     left = [],
-    middleArr = [],
+    middleArr = [],++
     right = [];
   for (let i = 0; i < arr.length; i++) {
     if (arr[i] < middle) {
