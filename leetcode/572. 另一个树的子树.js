@@ -3,23 +3,23 @@
 // leetcode 96ms 38.7MB
 // isSubtree方法递归遍历节点
 var isSubtree = function(s, t) {
-    if (!s) {
-        return false;
+  if (!s) {
+    return false;
+  }
+  if (s.val === t.val) {
+    if (compare(s, t)) {
+      return true
     }
-    if (s.val === t.val) {
-        if (compare(s, t)) {
-            return true
-        }
-    }
-    return isSubtree(s.left, t) || isSubtree(s.right, t)
+  }
+  return isSubtree(s.left, t) || isSubtree(s.right, t)
 };
 // compare方法当前节点的子树和t是否相同
 var compare = function(s, t) {
-    if (!s && !t) {
-        return true;
-    }
-    if ((!s || !t) || s.val !== t.val) {
-        return false;
-    }
-    return compare(s.left, t.left) && compare(s.right, t.right) 
+  if (!s && !t) {
+    return true;
+  }
+  if ((!s || !t) || s.val !== t.val) {
+    return false;
+  }
+  return compare(s.left, t.left) && compare(s.right, t.right)
 }

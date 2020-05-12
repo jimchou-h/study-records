@@ -3,13 +3,13 @@
 // 注意：给定 n 是一个正整数。
 // leetcode 48ms 33.8MB
 var climbStairs = function(n) {
-    if (n < 4) {
-        return n;
-    }
-    // 使用数组存储的话会性能会更好,也可以用递归·
-    let stair = [, 1, 2];
-    for (let i = 3; i < n; i++) {
-        stair[i] = stair[i - 1] + stair[i - 2];
-    }
-    return stair[n - 1] + stair[n - 2];
+  if (n < 4) {
+    return n;
+  }
+  // 使用数组存储的话会性能会更好,也可以用递归·
+  let stair = [, 1, 2];
+  for (let i = 3; i < n; i++) {
+    stair[i] = stair[i - 1] + stair[i - 2];
+  }
+  return stair[n - 1] + stair[n - 2];
 };
