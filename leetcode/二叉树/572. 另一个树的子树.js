@@ -13,7 +13,8 @@ var isSubtree = function(s, t) {
   }
   return isSubtree(s.left, t) || isSubtree(s.right, t)
 };
-// compare方法当前节点的子树和t是否相同
+// compare方法判断当前节点的子树和t是否相同
+// 递归比较
 var compare = function(s, t) {
   if (!s && !t) {
     return true;

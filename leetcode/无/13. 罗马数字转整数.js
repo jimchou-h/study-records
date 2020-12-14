@@ -51,6 +51,7 @@ var romanToInt = function(s) {
 // 优化!!!!!
 var romanToInt = function(s) {
   let result = 0;
+  // 用map保存特殊值
   const table2 = new Map();
   table2.set('IV', 4);
   table2.set('IX', 9);
@@ -59,11 +60,14 @@ var romanToInt = function(s) {
   table2.set('CD', 400);
   table2.set('CM', 900);
   for (let i = 0, len = s.length; i < len; i++) {
+    // 先匹配两个字符
     let curNext = s[i] + s[i + 1];
+    // 有特殊情况就按特殊情况处理
     if (table2.has(curNext)) {
       result += table2.get(curNext);
       i++;
     } else {
+    // 没有就按单个字符处理
       result += transfer(s[i])
     }
   }

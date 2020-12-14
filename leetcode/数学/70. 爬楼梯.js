@@ -2,6 +2,7 @@
 // 每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶呢？
 // 注意：给定 n 是一个正整数。
 // leetcode 48ms 33.8MB
+// 斐波那契数列
 var climbStairs = function(n) {
   if (n < 4) {
     return n;
@@ -12,4 +13,12 @@ var climbStairs = function(n) {
     stair[i] = stair[i - 1] + stair[i - 2];
   }
   return stair[n - 1] + stair[n - 2];
+};
+
+// 递归版 超时
+var climbStairs = function(n) {
+  if (n < 3) {
+    return n
+  }
+  return climbStairs(n - 1) + climbStairs(n - 2)
 };

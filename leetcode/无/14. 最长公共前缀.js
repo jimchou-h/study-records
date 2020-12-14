@@ -8,7 +8,10 @@ var longestCommonPrefix = function(strs) {
   if (strs.length === 1) {
     return strs[0];
   }
+  // 以第一个数组元素为基准
   let [a, ...b] = strs, len = a.length, i = 1;
+  // 逐个取数组元素内的字符用every方法与其它比较
+  // 直到不符合就返回结果
   while (i < len + 1) {
     let aim = a.substring(0, i)
     let result = b.every((item) => {

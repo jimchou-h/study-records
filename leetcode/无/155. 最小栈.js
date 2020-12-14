@@ -11,6 +11,7 @@ var MinStack = function() {
 
 MinStack.prototype.push = function(x) {
   // 最小值替换时一次添加两个值
+  // 在最新的最小值前存上一个最小值
   if (x <= this.min) {
     this.stack.unshift(x, this.min);
     this.min = x
@@ -25,6 +26,7 @@ MinStack.prototype.pop = function() {
     min
   } = this
   // 遇到最小值取出一次取两个值
+  // 再出栈一次就能取到上一个最小值，这样就不用通过遍历去获取当前栈的最小值了
   if (stack.shift() === min) {
     this.min = stack.shift()
   }

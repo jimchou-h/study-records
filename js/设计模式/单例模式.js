@@ -5,9 +5,9 @@ function Name(name) {
 }
 
 function Single() {
+  // 闭包保存实例
   var instance = null;
   return function(name) {
-    console.log(instance)
     if (!instance) {
       instance = new Name(name);
     }
@@ -17,5 +17,6 @@ function Single() {
 
 var single = Single();
 
+// 返回的同一个实例
 let s1 = single('张三');
 let s2 = single('李四');

@@ -6,6 +6,7 @@ var isPalindrome = function(x) {
   x = x + "";
   let i = 0,
     j = x.length - 1;
+  // 两指针法进行比较
   while (i < j) {
     if (x[i] !== x[j]) {
       return false

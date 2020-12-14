@@ -15,13 +15,16 @@ var isValid = function(s) {
   let arr = [],
     left = [];
   arr['('] = arr['{'] = arr['['] = 0;
+  // map代表映射关系
   let map = new Map();
   map.set(')', '(');
   map.set(']', '[');
   map.set('}', '{');
   for (let i = 0, len = s.length; i < len; i++) {
+    // 右括号
     if (typeof arr[s[i]] !== 'number') {
       let match = map.get(s[i])
+      // 当没有对应的左括号或者与距离最近的左括号不匹配时，即匹配失败
       if (arr[match] === 0 || match !== left[0]) {
         return false;
       } else {
@@ -29,6 +32,7 @@ var isValid = function(s) {
         left.shift();
       }
     } else {
+      // 左括号计算次数和顺序
       arr[s[i]]++;
       left.unshift(s[i]);
     }
@@ -36,7 +40,7 @@ var isValid = function(s) {
   return arr['('] > 0 || arr['['] > 0 || arr['{'] > 0 ? false : true;
 };
 
-// 看到的创新解法自己用js实现，效率一般般
+// 看到的创新解法自己用js实现，效率一般般，简单易理解
 var isValid = function(s) {
   if (s.length === 0) {
     return true;

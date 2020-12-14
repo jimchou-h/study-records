@@ -4,6 +4,8 @@
 var twoSum = function(nums, target) {
   let arr = [];
   for (let i = 0, len = nums.length; i < len; i++) {
+    // 空间保存target和nums[i]的差值,当匹配到时即为结果
+    // 空间换时间
     if (typeof arr[nums[i]] !== 'number') {
       arr[target - nums[i]] = i;
     } else {
