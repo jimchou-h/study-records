@@ -1,0 +1,523 @@
+import Sortable from "sortablejs";
+import { insertNodeAt, camelize, console, removeNode } from "./util/helper";
+
+function buildAttribute(object, propName, value) {
+  if (value === undefined) {
+    return object;
+  }
+  object = object || {};
+  object[propName] = value;
+  return object;
+}
+
+function computeVmIndex(vnodes, element) {
+  return vnodes.map(elt => elt.elm).indexOf(element);
+}
+
+// 计算列表项 vnode 在真实 dom 对象中的位置，并返回一个 index 数组
+// slots -> slots.default 列表数据对应的 vnode数组
+// children -> vue-draggable组件 dom 元素的 children ，有可能会包括其它元素，比如 header slot 或者 footer slot
+function computeIndexes(slots, children, isTransition, footerOffset) {
+  if (!slots) {
+    return [];
+  }
+
+  const elmFromNodes = slots.map(elt => elt.elm);
+  const footerIndex = children.length - footerOffset;
+  const rawIndexes = [...children].map((elt, idx) =>
+    idx >= footerIndex ? elmFromNodes.length : elmFromNodes.indexOf(elt)
+  );
+  return isTransition ? rawIndexes.filter(ind => ind !== -1) : rawIndexes;
+}
+
+function emit(evtName, evtData) {
+  this.$nextTick(() => this.$emit(evtName.toLowerCase(), evtData));
+}
+
+function delegateAndEmit(evtName) {
+  return evtData => {
+    // 如果说拖动组件内是有数据的
+    // 就调用 vue-draggable 内相应的方法
+    if (this.realList !== null) {
+      this["onDrag" + evtName](evtData);
+    }
+    // 触发用户设置的回调函数
+    emit.call(this, evtName, evtData);
+  };
+}
+
+function isTransitionName(name) {
+  return ["transition-group", "TransitionGroup"].includes(name);
+}
+
+// 判断第一个 slots.default 第一个 子vnode 是不是transition-group
+function isTransition(slots) {
+  if (!slots || slots.length !== 1) {
+    return false;
+  }
+  const [{ componentOptions }] = slots;
+  if (!componentOptions) {
+    return false;
+  }
+  return isTransitionName(componentOptions.tag);
+}
+
+function getSlot(slot, scopedSlot, key) {
+  return slot[key] || (scopedSlot[key] ? scopedSlot[key]() : undefined);
+}
+
+function computeChildrenAndOffsets(children, slot, scopedSlot) {
+  let headerOffset = 0;
+  let footerOffset = 0;
+  const header = getSlot(slot, scopedSlot, "header");
+  if (header) {
+    headerOffset = header.length;
+    children = children ? [...header, ...children] : [...header];
+  }
+  const footer = getSlot(slot, scopedSlot, "footer");
+  if (footer) {
+    footerOffset = footer.length;
+    children = children ? [...children, ...footer] : [...footer];
+  }
+  return { children, headerOffset, footerOffset };
+}
+
+function getComponentAttributes($attrs, componentData) {
+  let attributes = null;
+  const update = (name, value) => {
+    attributes = buildAttribute(attributes, name, value);
+  };
+  const attrs = Object.keys($attrs)
+    .filter(key => key === "id" || key.startsWith("data-"))
+    .reduce((res, key) => {
+      res[key] = $attrs[key];
+      return res;
+    }, {});
+  update("attrs", attrs);
+
+  if (!componentData) {
+    return attributes;
+  }
+  const { on, props, attrs: componentDataAttrs } = componentData;
+  update("on", on);
+  update("props", props);
+  Object.assign(attributes.attrs, componentDataAttrs);
+  return attributes;
+}
+
+// 这些方法 vue-draggable 组件内部也要实现对应的方法
+const eventsListened = ["Start", "Add", "Remove", "Update", "End"];
+// 这些不需要，直接发送出去就行
+const eventsToEmit = ["Choose", "Unchoose", "Sort", "Filter", "Clone"];
+const readonlyProperties = ["Move", ...eventsListened, ...eventsToEmit].map(
+  evt => "on" + evt
+);
+var draggingElement = null;
+
+const props = {
+  options: Object,
+  list: {
+    type: Array,
+    required: false,
+    default: null
+  },
+  value: {
+    type: Array,
+    required: false,
+    default: null
+  },
+  noTransitionOnDrag: {
+    type: Boolean,
+    default: false
+  },
+  clone: {
+    type: Function,
+    default: original => {
+      return original;
+    }
+  },
+  element: {
+    type: String,
+    default: "div"
+  },
+  tag: {
+    type: String,
+    default: null
+  },
+  move: {
+    type: Function,
+    default: null
+  },
+  componentData: {
+    type: Object,
+    required: false,
+    default: null
+  }
+};
+
+const draggableComponent = {
+  name: "draggable",
+
+  inheritAttrs: false,
+
+  props,
+
+  data() {
+    return {
+      transitionMode: false,
+      noneFunctionalComponentMode: false
+    };
+  },
+
+  render(h) {
+    const slots = this.$slots.default;
+    // isTransition
+    this.transitionMode = isTransition(slots);
+    const { children, headerOffset, footerOffset } = computeChildrenAndOffsets(
+      slots,
+      this.$slots,
+      this.$scopedSlots
+    );
+    this.headerOffset = headerOffset;
+    this.footerOffset = footerOffset;
+    console.log(headerOffset, footerOffset);
+    const attributes = getComponentAttributes(this.$attrs, this.componentData);
+    return h(this.getTag(), attributes, children);
+  },
+
+  created() {
+    if (this.list !== null && this.value !== null) {
+      console.error(
+        "Value and list props are mutually exclusive! Please set one or another."
+      );
+    }
+
+    if (this.element !== "div") {
+      console.warn(
+        "Element props is deprecated please use tag props instead. See https://github.com/SortableJS/Vue.Draggable/blob/master/documentation/migrate.md#element-props"
+      );
+    }
+
+    if (this.options !== undefined) {
+      console.warn(
+        "Options props is deprecated, add sortable options directly as vue.draggable item, or use v-bind. See https://github.com/SortableJS/Vue.Draggable/blob/master/documentation/migrate.md#options-props"
+      );
+    }
+  },
+
+  mounted() {
+    this.noneFunctionalComponentMode =
+      this.getTag().toLowerCase() !== this.$el.nodeName.toLowerCase() &&
+      !this.getIsFunctional();
+    if (this.noneFunctionalComponentMode && this.transitionMode) {
+      throw new Error(
+        `Transition-group inside component is not supported. Please alter tag value or remove transition-group. Current tag value: ${this.getTag()}`
+      );
+    }
+    const optionsAdded = {};
+    eventsListened.forEach(elt => {
+      optionsAdded["on" + elt] = delegateAndEmit.call(this, elt);
+    });
+
+    eventsToEmit.forEach(elt => {
+      optionsAdded["on" + elt] = emit.bind(this, elt);
+    });
+
+    // 在 vue-draggable 标签上定义的属性
+    // 也就是 sortablejs 的配置项
+    // 因为 vue-draggable 是一个组件
+    const attributes = Object.keys(this.$attrs).reduce((res, key) => {
+      res[camelize(key)] = this.$attrs[key];
+      return res;
+    }, {});
+
+    // 合并选项
+    const options = Object.assign({}, this.options, attributes, optionsAdded, {
+      onMove: (evt, originalEvent) => {
+        return this.onDragMove(evt, originalEvent);
+      }
+    });
+    // 没配置默认所有都可以拖拽
+    !("draggable" in options) && (options.draggable = ">*");
+    this._sortable = new Sortable(this.rootContainer, options);
+    this.computeIndexes();
+  },
+
+  beforeDestroy() {
+    if (this._sortable !== undefined) this._sortable.destroy();
+  },
+
+  computed: {
+    // 获取当前容器
+    rootContainer() {
+      return this.transitionMode ? this.$el.children[0] : this.$el;
+    },
+
+    // 传入的 list 或 value
+    realList() {
+      return this.list ? this.list : this.value;
+    }
+  },
+
+  watch: {
+    options: {
+      handler(newOptionValue) {
+        this.updateOptions(newOptionValue);
+      },
+      deep: true
+    },
+
+    $attrs: {
+      handler(newOptionValue) {
+        this.updateOptions(newOptionValue);
+      },
+      deep: true
+    },
+
+    realList() {
+      this.computeIndexes();
+    }
+  },
+
+  methods: {
+    getIsFunctional() {
+      const { fnOptions } = this._vnode;
+      return fnOptions && fnOptions.functional;
+    },
+
+    getTag() {
+      return this.tag || this.element;
+    },
+
+    // 用户改变数据动态更新
+    updateOptions(newOptionValue) {
+      for (var property in newOptionValue) {
+        const value = camelize(property);
+        if (readonlyProperties.indexOf(value) === -1) {
+          this._sortable.option(value, newOptionValue[property]);
+        }
+      }
+    },
+
+    // 获取用户列表数据生成的 vnode
+    getChildrenNodes() {
+      if (this.noneFunctionalComponentMode) {
+        return this.$children[0].$slots.default;
+      }
+      const rawNodes = this.$slots.default;
+      return this.transitionMode ? rawNodes[0].child.$slots.default : rawNodes;
+    },
+
+    computeIndexes() {
+      this.$nextTick(() => {
+        this.visibleIndexes = computeIndexes(
+          this.getChildrenNodes(),
+          this.rootContainer.children,
+          this.transitionMode,
+          this.footerOffset
+        );
+      });
+    },
+
+    // 根据 dom 节点获取相关的数据和位置
+    getUnderlyingVm(htmlElt) {
+      const index = computeVmIndex(this.getChildrenNodes() || [], htmlElt);
+      if (index === -1) {
+        //Edge case during move callback: related element might be
+        //an element different from collection
+        return null;
+      }
+      const element = this.realList[index];
+      console.log(element)
+      return { index, element };
+    },
+
+    getUnderlyingPotencialDraggableComponent({ __vue__: vue }) {
+      if (
+        !vue ||
+        !vue.$options ||
+        !isTransitionName(vue.$options._componentTag)
+      ) {
+        if (
+          !("realList" in vue) &&
+          vue.$children.length === 1 &&
+          "realList" in vue.$children[0]
+        )
+          return vue.$children[0];
+
+        return vue;
+      }
+      return vue.$parent;
+    },
+
+    emitChanges(evt) {
+      this.$nextTick(() => {
+        this.$emit("change", evt);
+      });
+    },
+
+    alterList(onList) {
+      if (this.list) {
+        onList(this.list);
+        return;
+      }
+      const newList = [...this.value];
+      onList(newList);
+      this.$emit("input", newList);
+    },
+
+    spliceList() {
+      const spliceList = list => list.splice(...arguments);
+      this.alterList(spliceList);
+    },
+    
+    // 通过数据更新通知 vue 更新位置
+    updatePosition(oldIndex, newIndex) {
+      const updatePosition = list =>
+        list.splice(newIndex, 0, list.splice(oldIndex, 1)[0]);
+      this.alterList(updatePosition);
+    },
+
+    getRelatedContextFromMoveEvent({ to, related }) {
+      const component = this.getUnderlyingPotencialDraggableComponent(to);
+      if (!component) {
+        return { component };
+      }
+      const list = component.realList;
+      const context = { list, component };
+      if (to !== related && list && component.getUnderlyingVm) {
+        const destination = component.getUnderlyingVm(related);
+        if (destination) {
+          return Object.assign(destination, context);
+        }
+      }
+      return context;
+    },
+
+    getVmIndex(domIndex) {
+      debugger
+      const indexes = this.visibleIndexes;
+      const numberIndexes = indexes.length;
+      return domIndex > numberIndexes - 1 ? numberIndexes : indexes[domIndex];
+    },
+
+    getComponent() {
+      return this.$slots.default[0].componentInstance;
+    },
+
+    resetTransitionData(index) {
+      if (!this.noTransitionOnDrag || !this.transitionMode) {
+        return;
+      }
+      var nodes = this.getChildrenNodes();
+      nodes[index].data = null;
+      const transitionContainer = this.getComponent();
+      transitionContainer.children = [];
+      transitionContainer.kept = undefined;
+    },
+    
+    // 拖拽开始，记录一下当前的数据和位置
+    onDragStart(evt) {
+      this.context = this.getUnderlyingVm(evt.item);
+      evt.item._underlying_vm_ = this.clone(this.context.element);
+      draggingElement = evt.item;
+    },
+
+    // 拖拽数据到新的列表中时触发
+    // 在新的列表中塞进数据，实现数据与视图同步
+    onDragAdd(evt) {
+      const element = evt.item._underlying_vm_;
+      if (element === undefined) {
+        return;
+      }
+      removeNode(evt.item);
+      const newIndex = this.getVmIndex(evt.newIndex);
+      this.spliceList(newIndex, 0, element);
+      this.computeIndexes();
+      const added = { element, newIndex };
+      this.emitChanges({ added });
+    },
+    
+    // 拖拽数据到新的列表中时触发
+    // add 是相对于新列表，remove是相对于旧列表
+    onDragRemove(evt) {
+      // 将 evt.item 放到旧列表中
+      insertNodeAt(this.rootContainer, evt.item, evt.oldIndex);
+      // clone 模式会复制一个 clone 节点替换旧列表的 item 使旧列表看起来不会变化
+      // 会有 evt.clone 和 evt.item 字段
+      // 上面已经将 item 字段的节点也塞到旧列表中了
+      // 所以清除掉 clone 节点就行
+      if (evt.pullMode === "clone") {
+        removeNode(evt.clone);
+        return;
+      }
+      // 从旧的列表中清除数据
+      const oldIndex = this.context.index;
+      this.spliceList(oldIndex, 1);
+      const removed = { element: this.context.element, oldIndex };
+      this.resetTransitionData(oldIndex);
+      this.emitChanges({ removed });
+    },
+
+    // 同个列表中列表项更换位置触发
+    onDragUpdate(evt) {
+      // 会移除当前节点
+      removeNode(evt.item);
+      insertNodeAt(evt.from, evt.item, evt.oldIndex);
+      const oldIndex = this.context.index;
+      const newIndex = this.getVmIndex(evt.newIndex);
+      // 更改数据触发 vue 的视图更新
+      this.updatePosition(oldIndex, newIndex);
+      const moved = { element: this.context.element, oldIndex, newIndex };
+      this.emitChanges({ moved });
+    },
+
+    updateProperty(evt, propertyName) {
+      evt.hasOwnProperty(propertyName) &&
+        (evt[propertyName] += this.headerOffset);
+    },
+
+    computeFutureIndex(relatedContext, evt) {
+      if (!relatedContext.element) {
+        return 0;
+      }
+      const domChildren = [...evt.to.children].filter(
+        el => el.style["display"] !== "none"
+      );
+      const currentDOMIndex = domChildren.indexOf(evt.related);
+      const currentIndex = relatedContext.component.getVmIndex(currentDOMIndex);
+      const draggedInList = domChildren.indexOf(draggingElement) !== -1;
+      return draggedInList || !evt.willInsertAfter
+        ? currentIndex
+        : currentIndex + 1;
+    },
+
+    onDragMove(evt, originalEvent) {
+      const onMove = this.move;
+      if (!onMove || !this.realList) {
+        return true;
+      }
+
+      const relatedContext = this.getRelatedContextFromMoveEvent(evt);
+      const draggedContext = this.context;
+      const futureIndex = this.computeFutureIndex(relatedContext, evt);
+      Object.assign(draggedContext, { futureIndex });
+      const sendEvt = Object.assign({}, evt, {
+        relatedContext,
+        draggedContext
+      });
+      return onMove(sendEvt, originalEvent);
+    },
+
+    onDragEnd() {
+      this.computeIndexes();
+      draggingElement = null;
+    }
+  }
+};
+
+if (typeof window !== "undefined" && "Vue" in window) {
+  window.Vue.component("draggable", draggableComponent);
+}
+
+export default draggableComponent;
