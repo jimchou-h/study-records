@@ -13,6 +13,7 @@ var objDecorator = {
   }
 }
 objDecorator.show()
+
 /**
  * ES6
  */

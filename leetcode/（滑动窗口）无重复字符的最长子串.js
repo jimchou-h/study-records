@@ -10,7 +10,7 @@ var lengthOfLongestSubstring = function(s) {
   for (let i = 0, j = 0, len = s.length; j < len; i++) {
     if (i > 0) set.delete(s[i - 1])
     // 如果i和j之间的字符串不重复的话j指针可以一直往右走
-    // 不然就i指针一直往左走，知道i和j之间的字符串不重复
+    // 不然就i指针一直往左走，直到i和j之间的字符串不重复
     while (j < len && !set.has(s[j])) {
       set.add(s[j])
       j++
