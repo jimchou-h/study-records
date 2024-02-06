@@ -4,6 +4,17 @@
  * 返回你可以从这笔交易中获取的最大利润。如果你不能获取任何利润，返回 0
  */
 
+// 其实用变量存也一样，思路一致
+// 用minPrice记录前面的最小值，然后减去即可
+var maxProfit = function(prices) {
+  let minPrice = prices[0], max = 0
+  for (let i = 1, len = prices.length; i < len; i++) {
+    max = Math.max(max, prices[i] - minPrice)
+    minPrice = Math.min(minPrice, prices[i])
+  }
+  return max
+};
+
 var maxProfit = function(prices) {
   // minPrice 记录股票最低的时候
   // result 记录利润最高的时候
@@ -15,12 +26,3 @@ var maxProfit = function(prices) {
   return result[result.length - 1]
 };
 
-// 其实用变量存也一样，思路一致
-var maxProfit = function(prices) {
-  let minPrice = prices[0], max = 0
-  for (let i = 1, len = prices.length; i < len; i++) {
-    max = Math.max(max, prices[i] - minPrice)
-    minPrice = Math.min(minPrice, prices[i])
-  }
-  return max
-};
