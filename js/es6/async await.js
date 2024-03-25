@@ -1,4 +1,13 @@
 /**
+ * 使用
+ */
+const fn1 = async () => {}
+const fn = async () => {
+  const res = await fn1()
+  console.log(res)
+}
+
+/**
  * 实现原理
  */
 
