@@ -1,0 +1,3 @@
+https://github.com/sindresorhus/p-limit
+
+限制并发执行的异步操作的JavaScript 库

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>worker-demo</title>
+	</head>
+	<body>
+		<script>
+      // const worker = new Worker(path, options);
+      // options参数
+      // options.type: 指定worker类型，默认是"classic"，也可以是"module"，选择module类型可以使用ESModule
+      // options.credentials: 指定worker凭证，默认是"omit"
+      // options.name: 指定worker名称，默认是"worker-1"
+      // options.id: 指定worker id，默认是"1"
+      const worker = new Worker('./worker.js'); // 创建worker
+
+      // 监听worker发送的消息
+      worker.addEventListener('message', e => {
+        console.log(e.data); // Greeting from Worker.js，worker线程发送的消息
+      });
+
+      worker.postMessage('send message'); // 向 worker 线程发送消息，对应 worker 线程中的 e.data
+
+      // 当worker内部出现错误时触发
+      worker.addEventListener('error', err => {
+        console.log(err.message);
+      });
+      // 当message事件接收到无法被反序列化的参数时触发，比如函数
+      worker.addEventListener('messageerror', err => {
+        console.log(err.message)
+      });
+
+      // 关闭worker，链接会立刻停止
+      // worker.terminate()
+    </script>
+	</body>
+</html>

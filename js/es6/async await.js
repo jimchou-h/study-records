@@ -24,7 +24,6 @@ function* read() {
 function co(it) {
   return new Promise((resolve, reject) => {
     function next(data) {
-      console.log(data)
       const {
         value,
         done

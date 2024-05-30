@@ -8,9 +8,10 @@ class Subject {
   }
   setState(state) {
     this.state = state;
-    this.ObserverNotice();
+    // 当状态改变时，通知所有观察者
+    this.observerNotice();
   }
-  ObserverNotice() {
+  observerNotice() {
     for (let i = 0, len = this.observers.length; i < len; i++) {
       this.observers[i].update();
     }

@@ -1,2 +1,0 @@
-(()=>{var o={758:o=>{o.exports=20},280:o=>{o.exports="张三"}},r={};function t(e){var s=r[e];if(void 0!==s)return s.exports;var n=r[e]={exports:{}};return o[e](n,n.exports,t),n.exports}(()=>{"use strict";const o=t(280),r=t(758);console.log("entry文件打印作者信息",o,r),console.log(1)})()})();
-//# sourceMappingURL=main.js.map

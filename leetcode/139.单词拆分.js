@@ -3,22 +3,23 @@
  * 注意：不要求字典中出现的单词全部都使用，并且字典中的单词可以重复使用
  */
 
-思路: 动态规划,判断dp[i]是不是一个字符串
+// 动态规划
+var wordBreak = function(s, wordDict) {
+  const len = s.length
 
-function wordBreak(s: string, wordDict: string[]): boolean {
-  const len: number = s.length
-  const wordDictSet: Set<string> = new Set(wordDict)
-  const dp: Array<boolean> = new Array(len + 1).fill(false)
-  // 默认dp[0]为true
-  dp[0] = true
-  for (let i = 1; i <= len; i++) {
-    for (let j = 0; j < i; j++) {
-			// 说明s[0 ~ i]是一个符合条件的字符串，dp[i]设为true
-      if (dp[j] && wordDictSet.has(s.slice(j, i))) {
+  // 建立dp数组
+  const dp = new Array(len).fill(false)
+  dp[-1] = true
+
+  // dp[i] = dp[j] && check(j + 1, i + 1）
+  // j应该从-1开始，考虑到字符从0开始的情况
+  for (let i = 0; i < len; i++) {
+    for (let j = -1; j < i; j++) {
+      if (dp[j] && wordDict.includes(s.slice(j + 1, i + 1))) {
         dp[i] = true
-        break
       }
     }
   }
-  return dp[len]
+
+  return dp[len - 1]
 };
