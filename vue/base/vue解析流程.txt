@@ -1,0 +1,25 @@
+vue-loader 将导入的vue文件转换为JavaScript模块
+使用@vue/compiler-sfc来解析，会将template模块转成render函数
+{
+  render: fn(),
+  setup: fn(),
+  __file: '/src/components/UsePinia.vue',
+  __hmrId: "740aad93",
+  __name: "UsePinia"
+}
+https://github.com/vuejs/vue-loader/blob/main/src/index.ts#L379
+
+模板编译即将template模板转化成js函数的过程，因为template函数无法被浏览器解析渲染
+模板解析步骤如下：template -> ast - > render - > vdom - > 真实dom
+1.解析阶段：使用正则将template模板中的HTML标签、指令和表达式等提取出来，构建AST（抽象语法树）。
+2.优化阶段：对AST进行优化，如删除不必要的节点、合并重复的文本节点等，以提高渲染性能。
+3.生成阶段：根据优化后的AST，生成最终的render函数或虚拟DOM。
+
+
+template到render的过程主要是通过complieToFunction方法实现的，该方法接收template作为输入，并返回一个render函数。
+complieToFunction的主要逻辑是：
+1.通过parse方法解析template模板，生成AST（抽象语法树）。
+2.对ast静态节点优化打标记。
+3.通过generate方法遍历AST，将每个节点转换为对应的render函数的代码片段。
+4.将生成的代码片段拼接成一个完整的render函数。
+https://github.com/vuejs/vue-next/blob/master/packages/compiler-core/src/compile.ts#L105

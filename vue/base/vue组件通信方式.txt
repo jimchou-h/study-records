@@ -1,0 +1,6 @@
+1.provide/inject
+2.vuex/pinia
+3.props/emit
+4.$parent/$children
+5.$refs
+6.eventBus

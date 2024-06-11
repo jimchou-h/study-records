@@ -10,7 +10,7 @@ function deepCopy(obj, hash = new WeakMap()) {
 	// 有缓存直接返回
 	if (hash.get(obj)) return hash.get(obj)
 
-	let cloneObj = new obj.constructor()
+	let cloneObj = new obj.constructor() // 继承 obj 对象的原型链上的属性和方法
 	hash.set(obj, cloneObj)
 	for (let key in obj) {
 		if (obj.hasOwnProperty(key)) {
