@@ -1,0 +1,10 @@
+reactivity - 响应式相关的模块
+compiler-core - 处理模板的语法解析、AST 构建以及生成渲染函数的逻辑
+compiler-dom - 以compiler-core为基础，针对浏览器环境做了特定的优化和处理
+compiler-sfc - 依赖于compiler-core和compiler-dom，用于将.vue文件解析成JavaScript代码
+runtime-core - 核心模块，实现了Vue基本功能和特性，包括组件实例化、虚拟 DOM 渲染、响应式数据系统、事件处理、生命周期管理等
+runtime-dom - 针对浏览器环境，处理DOM操作和事件处理
+runtime-test - 针对测试环境，提供测试相关的功能
+server-renderer - 处理服务端渲染的逻辑
+shared - 定义了一些公共的工具函数和类型定义
+vue - 整合了以上模块，提供了一些全局的API和工具函数
