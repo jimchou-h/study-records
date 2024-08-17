@@ -45,3 +45,50 @@ var longestPalindrome = function (s) {
 
   return s.slice(maxi, maxj + 1);
 };
+
+/**
+ * @param {string} s
+ * @return {string}
+ */
+var longestPalindrome = function (s) {
+  const len = s.length
+  if (len === 1) {
+    return s
+  }
+
+  const ifHasPalindrome = (l, r) => {
+    let count = 0
+    while (l <= r) {
+      if (s[l] === s[r]) {
+        l++
+        r--
+        count += 2
+      } else {
+        return {
+          success: false,
+          count: 0
+        }
+      }
+    }
+    return {
+      success: true,
+      count
+    }
+  }
+
+  let maxL = 0, maxR = 0
+  for (let i = 1; i < len; i++) {
+    for (let j = 0; j < i; j++) {
+      const result = ifHasPalindrome(j, i)
+      if (result.success) {
+        if (maxR - maxL < i - j) {
+          maxL = j
+          maxR = i
+        }
+        break
+      }
+    }
+  }
+
+  return s.slice(maxL, maxR + 1)
+}
