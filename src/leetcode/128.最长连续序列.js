@@ -1,7 +1,7 @@
 /**
  * https://leetcode.cn/problems/longest-consecutive-sequence/description/?envType=study-plan-v2&envId=top-100-liked
+ * 思路：哈希表，并且要做剪枝，判断当前值没有上一个值的话开始计算长度
  */
-
 
 /**
  * @param {number[]} nums

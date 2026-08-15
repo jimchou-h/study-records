@@ -6,19 +6,19 @@
 
 function quickSort(arr) {
   if (arr.length < 2) {
-    return arr
+    return arr;
   }
   let middle = arr[0],
     left = [],
-    middleArr = [],++
+    middleArr = [],
     right = [];
   for (let i = 0; i < arr.length; i++) {
     if (arr[i] < middle) {
-      left.push(arr[i])
+      left.push(arr[i]);
     } else if (arr[i] === middle) {
-      middleArr.push(arr[i])
+      middleArr.push(arr[i]);
     } else {
-      right.push(arr[i])
+      right.push(arr[i]);
     }
   }
   return quickSort(left).concat(middleArr, quickSort(right));

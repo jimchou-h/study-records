@@ -1,6 +1,30 @@
 /**
  * https://leetcode.cn/problems/merge-intervals/description/?envType=study-plan-v2&envId=top-100-liked
+ * 思路：排序，然后遍历，如果当前区间的最小值小于等于上个区间的最大值，说明有交集，更新最大值
  */
+
+/**
+ * @param {number[][]} intervals
+ * @return {number[][]}
+ */
+var merge = function (intervals) {
+  let result = [];
+  intervals.sort((a, b) => (a[0] - b[0] === 0 ? a[1] - b[1] : a[0] - b[0]));
+  for (let i = 0; i < intervals.length; i++) {
+    if (i === 0) {
+      result.push(intervals[i]);
+    } else {
+      const cur = intervals[i],
+        pre = result[result.length - 1];
+      if (pre[1] >= cur[0]) {
+        result[result.length - 1][1] = Math.max(pre[1], cur[1]);
+      } else {
+        result.push(cur);
+      }
+    }
+  }
+  return result;
+};
 
 // 排序
 /**

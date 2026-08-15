@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>大文件上传实验室</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hero">
+        <p class="eyebrow">Resume · Interview Lab</p>
+        <h1>课件大文件上传</h1>
+        <p class="lede">
+          Web Worker 采样秒传 → 3～5MB 分片 → 最多 6 路并发 →
+          <em>后端对每片再算 hash</em> → 坏片只重传该片 → 合并前清单核验
+        </p>
+      </header>
+
+      <ol class="pipeline">
+        <li data-step="hash">采样 Hash</li>
+        <li data-step="check">秒传检查</li>
+        <li data-step="chunks">分片上传 / 校验</li>
+        <li data-step="merge">合并核验</li>
+        <li data-step="done">完成</li>
+      </ol>
+
+      <main class="grid">
+        <section class="panel">
+          <h2>控制台</h2>
+
+          <label class="file-drop">
+            <input id="file" type="file" />
+            <strong>选择文件</strong>
+            <span id="file-meta">未选择文件</span>
+          </label>
+
+          <div class="row">
+            <label>
+              分片大小
+              <select id="chunk-size">
+                <option value="1">1 MB（本地小文件）</option>
+                <option value="3">3 MB</option>
+                <option value="4" selected>4 MB（接近线上）</option>
+                <option value="5">5 MB</option>
+              </select>
+            </label>
+            <label>
+              并发
+              <select id="concurrency">
+                <option value="2">2</option>
+                <option value="4">4</option>
+                <option value="6" selected>6</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="check">
+            <input id="corrupt-enabled" type="checkbox" />
+            模拟第
+            <input id="corrupt-index" type="number" min="0" value="0" />
+            片传输出错（只搞第一次，携带原始 hash、改坏字节）
+          </label>
+
+          <div class="actions">
+            <button id="start" type="button">开始上传</button>
+            <button id="abort" type="button" class="ghost" disabled>中止</button>
+            <button id="reset" type="button" class="ghost">清空服务端</button>
+          </div>
+
+          <div class="progress-wrap">
+            <div id="progress"></div>
+          </div>
+          <p id="progress-text" class="progress-text">就绪</p>
+          <p id="result" class="result" hidden></p>
+        </section>
+
+        <section class="panel">
+          <h2>协议日志</h2>
+          <div id="log" class="log" aria-live="polite"></div>
+        </section>
+      </main>
+
+      <aside class="notes">
+        <h2>面试怎么讲</h2>
+        <ul>
+          <li>秒传用采样 hash 是为了避开 1GB+ 全量 MD5；碰撞风险用「拼进 file size + 分片清单」兜底。</li>
+          <li>前端 hash 只能当指纹，<strong>必须以服务端对收到字节的校验为准</strong>。</li>
+          <li>片太小请求爆炸，太大弱网超时；3～5MB、并发 6 是带宽和连接数的折中。</li>
+          <li>续传先拉已上传分片，只补缺失。合并失败应返回坏片 index，而不是清掉整文件。</li>
+        </ul>
+      </aside>
+    </div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

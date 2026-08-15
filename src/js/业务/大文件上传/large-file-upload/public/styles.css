@@ -1,0 +1,268 @@
+:root {
+  --bg: #14110d;
+  --bg-2: #1d1812;
+  --ink: #f3ead8;
+  --muted: #b4a48a;
+  --line: #3a3226;
+  --accent: #e8a838;
+  --ok: #7dce7a;
+  --warn: #e8a838;
+  --err: #e36b5a;
+  --shadow: 0 24px 60px rgb(0 0 0 / 35%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #3a2a12 0%, transparent 55%),
+    var(--bg);
+  color: var(--ink);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Songti SC", serif;
+}
+
+.shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 48px 20px 80px;
+}
+
+.hero .eyebrow {
+  margin: 0 0 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--accent);
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(32px, 6vw, 56px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.lede {
+  max-width: 46rem;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.lede em {
+  color: var(--accent);
+  font-style: normal;
+}
+
+.pipeline {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  margin: 28px 0 32px;
+}
+
+.pipeline li {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--muted);
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+
+.pipeline li.is-active {
+  color: #1a140c;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.panel {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+
+.file-drop {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.file-drop input {
+  display: none;
+}
+
+.file-drop span {
+  color: var(--muted);
+  font-size: 13px;
+  font-family: ui-monospace, Consolas, monospace;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+select,
+input[type='number'] {
+  background: #120f0b;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+}
+
+.check {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 18px;
+}
+
+.check input[type='number'] {
+  width: 64px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+button {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: var(--accent);
+  color: #1a140c;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.progress-wrap {
+  margin-top: 18px;
+  height: 8px;
+  background: #120f0b;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+#progress {
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #c48420, var(--accent));
+  transition: width 0.2s ease;
+}
+
+.progress-text,
+.result {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.result a {
+  color: var(--accent);
+}
+
+.log {
+  height: 420px;
+  overflow: auto;
+  padding: 8px;
+  background: #120f0b;
+  border-radius: 12px;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.log-line {
+  display: grid;
+  grid-template-columns: 86px 1fr;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.log-line time {
+  color: #6f6554;
+}
+
+.log-ok span {
+  color: var(--ok);
+}
+
+.log-warn span {
+  color: var(--warn);
+}
+
+.log-error span {
+  color: var(--err);
+}
+
+.notes {
+  margin-top: 16px;
+  padding: 18px 20px;
+  border-left: 3px solid var(--accent);
+}
+
+.notes ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

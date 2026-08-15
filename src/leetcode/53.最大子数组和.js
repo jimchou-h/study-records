@@ -1,7 +1,7 @@
 /**
  * https://leetcode.cn/problems/maximum-subarray/description/?envType=study-plan-v2&envId=top-100-liked
+ * 思路：动态规划，dp[i] = Math.max(dp[i - 1] + nums[i], nums[i])
  */
-
 
 // 动态规划
 /**
@@ -9,17 +9,17 @@
  * @return {number}
  */
 // dp[i] = Math.max(dp[i - 1] + nums[i], nums[i])
-var maxSubArray = function(nums) {
+var maxSubArray = function (nums) {
   if (nums.length === 1) {
-    return nums[0]
+    return nums[0];
   }
-  let result = nums[0]
-  const dp = [nums[0]]
+  let result = nums[0];
+  const dp = [nums[0]];
   for (let i = 1, len = nums.length; i < len; i++) {
-    dp[i] = Math.max(dp[i - 1] + nums[i], nums[i])
-    result = Math.max(dp[i], result)
+    dp[i] = Math.max(dp[i - 1] + nums[i], nums[i]);
+    result = Math.max(dp[i], result);
   }
-  return result
+  return result;
 };
 
 // 使用变量替代dp
@@ -27,14 +27,15 @@ var maxSubArray = function(nums) {
  * @param {number[]} nums
  * @return {number}
  */
-var maxSubArray = function(nums) {
-  if (nums.length === 1) return nums[0]
-  let result = nums[0], preMax = nums[0]
+var maxSubArray = function (nums) {
+  if (nums.length === 1) return nums[0];
+  let result = nums[0],
+    preMax = nums[0];
   for (let i = 1, len = nums.length; i < len; i++) {
-    preMax = Math.max(nums[i], preMax + nums[i])
-    result = Math.max(preMax, result)
+    preMax = Math.max(nums[i], preMax + nums[i]);
+    result = Math.max(preMax, result);
   }
-  return result
+  return result;
 };
 
 // 分治
